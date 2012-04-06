@@ -59,6 +59,7 @@ GitHub.User = GitHub.Model.extend(
   #
   # Fetch associated repositories for this user. Takes
   # a `success` and `error` callback as potential options.
+  # Returns a `GitHub.Repos` collection.
   repos: GitHub.Relations.ownedRepos
   # ### user.organizations(options)
   #
@@ -66,13 +67,13 @@ GitHub.User = GitHub.Model.extend(
   # a `success` and `error` callback as potential options.
   organizations: GitHub.Relations.ownedOrgs
 ,
-  # ### User.fetch(name, options)
+  # ### GitHub.User.fetch(name, options)
   #
   # Retrieve a user by username. Takes `success` and
   # `error` callbacks.
   #
   #     GitHub.User.fetch('mbleigh', {success: function(u){
-  #       console.log(u);  
+  #       console.log(u.toJSON());
   #     }});
   fetch: (name, options)->
     user = new GitHub.User(id: name)
@@ -80,34 +81,85 @@ GitHub.User = GitHub.Model.extend(
     user
 )
 
+# ## GitHub.Organization
+# 
+# Represents a GitHub organization. See the [Organization
+# API](http://developer.github.com/v3/orgs/) docs on GitHub
+# for additional information.
 GitHub.Organization = GitHub.Model.extend(
   urlRoot: 'https://api.github.com/orgs/'
+
+  # ### org.repos(options)
+  # 
+  # Fetch the repositories for the instantiated organization.
+  # Takes `success` and `error` callbacks. Returns a
+  # `GitHub.Repos` collection.
   repos: GitHub.Relations.ownedRepos
 ,
+  # ### GitHub.Organization.fetch(name, options)
+  #
+  # Fetch an organization by name. Accepts `success`
+  # and `error` callbacks.
+  #
+  #     GitHub.Organization.fetch('opperator', {success: function(o){
+  #       console.log(o.toJSON());
+  #     }});
   fetch: (name, options)->
     org = new GitHub.Organization(id: name)
     org.fetch(options)
     org
 )
 
+# ## GitHub.Organizations
+#
+# Collection of multiple organizations. By default will
+# be associated to the current user's organizations (you
+# must set an `GitHub.token` for that to work.)
 GitHub.Organizations = GitHub.Collection.extend
   url: 'https://api.github.com/user/orgs'
   model: GitHub.Organization
 
+# ## GitHub.Repo
+#
+# Repository model. For more information about attributes
+# etc, see the [GitHub Repo](http://developer.github.com/v3/repos/)
+# API docs.
 GitHub.Repo = GitHub.Model.extend(
   url: ()->
     @get('url') || "https://api.github.com/repos/#{@get('path')}"
 ,
+  # ### GitHub.Repo.fetch(owner, name, options)
+  #
+  # Retrieve a repository knowing its owner and name. Takes
+  # `success` and `error` callbacks in options.
+  #
+  #     GitHub.Repo.fetch('opperator', 'backbone-github', {success: function(r){
+  #       console.log(r.toJSON());
+  #     }});
   fetch: (owner, name, options)->
     repo = new GitHub.Repo(path: "#{owner}/#{name}")
     repo.fetch(options)
     repo
 )
 
+# ## GitHub.Repos
+# 
+# Collection of Repo models. Defaults to the current user's
+# repositories. Must have set `GitHub.token` for current
+# user repo fetch to be successful.
 GitHub.Repos = GitHub.Collection.extend
   url: 'https://api.github.com/user/repos'
   model: GitHub.Repo
 
+# ## GitHub.currentUser
+#
+# A `GitHub.User` corresponding to the authenticated user.
+# Note that you must set `GitHub.token` to a valid OAuth 2.0
+# token to be able to utilize the current user.
+#
+# The `currentUser` is not fetched by default, you must run
+# `GitHub.currentUser.fetch()` before it will be populated
+# with data.
 GitHub.currentUser = new GitHub.User()
 GitHub.currentUser.url = "https://api.github.com/user"
 GitHub.currentUser.urlRoot = null
