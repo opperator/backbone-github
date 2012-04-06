@@ -23,8 +23,29 @@
     sync: GitHub.sync
   });
 
+  GitHub.Relations = {
+    ownedRepos: function(options) {
+      var repos;
+      repos = new GitHub.Repos;
+      repos.url = typeof this.url === "function" ? this.url() : this.url;
+      repos.url += "/repos";
+      repos.fetch(options);
+      return repos;
+    },
+    ownedOrgs: function(options) {
+      var orgs;
+      orgs = new GitHub.Organizations;
+      orgs.url = typeof this.url === "function" ? this.url() : this.url;
+      orgs.url += "/orgs";
+      orgs.fetch(options);
+      return orgs;
+    }
+  };
+
   GitHub.User = GitHub.Model.extend({
-    urlRoot: 'https://api.github.com/users/'
+    urlRoot: 'https://api.github.com/users/',
+    repos: GitHub.Relations.ownedRepos,
+    organizations: GitHub.Relations.ownedOrgs
   }, {
     fetch: function(name, options) {
       var user;
@@ -37,7 +58,8 @@
   });
 
   GitHub.Organization = GitHub.Model.extend({
-    urlRoot: 'https://api.github.com/orgs/'
+    urlRoot: 'https://api.github.com/orgs/',
+    repos: GitHub.Relations.ownedRepos
   }, {
     fetch: function(name, options) {
       var org;
@@ -52,6 +74,26 @@
   GitHub.Organizations = GitHub.Collection.extend({
     url: 'https://api.github.com/user/orgs',
     model: GitHub.Organization
+  });
+
+  GitHub.Repo = GitHub.Model.extend({
+    url: function() {
+      return this.get('url') || ("https://api.github.com/repos/" + (this.get('path')));
+    }
+  }, {
+    fetch: function(owner, name, options) {
+      var repo;
+      repo = new GitHub.Repo({
+        path: "" + owner + "/" + name
+      });
+      repo.fetch(options);
+      return repo;
+    }
+  });
+
+  GitHub.Repos = GitHub.Collection.extend({
+    url: 'https://api.github.com/user/repos',
+    model: GitHub.Repo
   });
 
   GitHub.currentUser = new GitHub.User();
