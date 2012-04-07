@@ -2,6 +2,29 @@
 
   window.GitHub = {};
 
+  GitHub.token = null;
+
+  GitHub.authenticate = function(username, password, options) {
+    var postData;
+    postData = {};
+    if (options.scope != null) postData.scope = options.scope;
+    return $.ajax({
+      url: "https://api.github.com/authorizations",
+      contentType: 'application/json',
+      dataType: 'json',
+      type: 'POST',
+      data: JSON.stringify(postData),
+      headers: {
+        'Authorization': "Basic " + (btoa("" + username + ":" + password))
+      },
+      success: function(d, s, x) {
+        GitHub.token = d.token;
+        if (options.success != null) return options.success(d, s, x);
+      },
+      error: options.error
+    });
+  };
+
   GitHub.sync = function(method, model, options) {
     var extendedOptions;
     extendedOptions = _.extend({
