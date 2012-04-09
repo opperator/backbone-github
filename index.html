@@ -1,0 +1,368 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta http-equiv="content-type" content="text/html;charset=utf-8">
+  <title>backbone-github.coffee</title>
+  <link rel="stylesheet" href="http://jashkenas.github.com/docco/resources/docco.css">
+</head>
+<body>
+<div id='container'>
+  <div id="background"></div>
+  <table cellspacing=0 cellpadding=0>
+  <thead>
+    <tr>
+      <th class=docs><h1>backbone-github.coffee</h1></th>
+      <th class=code></th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr id='section-Dependencies'>
+      <td class=docs>
+        <div class="pilwrap">
+          <a class="pilcrow" href="#section-Dependencies">&#182;</a>
+        </div>
+        <p>Backbone GitHub is a library that connects to the <a href="http://developer.github.com">GitHub
+API</a> using Cross Origin Resource 
+Sharing (CORS). That means that you can utilize this library 
+to access the full GitHub API without any server-side code 
+whatsoever.</p>
+
+<h2>Dependencies</h2>
+
+<p>Backbone GitHub depends on Backbone, so before you can use
+this library you will need to have included Backbone, 
+Underscore, and jQuery on the page.</p>
+      </td>
+      <td class=code>
+        <div class='highlight'><pre><span class="nb">window</span><span class="p">.</span><span class="nx">GitHub</span> <span class="o">=</span> <span class="p">{}</span></pre></div>
+      </td>
+    </tr>
+    <tr id='section-GitHub.token'>
+      <td class=docs>
+        <div class="pilwrap">
+          <a class="pilcrow" href="#section-GitHub.token">&#182;</a>
+        </div>
+        <h2>GitHub.token</h2>
+
+<p>If <code>GitHub.token</code> is set you will be able to make 
+user-authenticated calls to the GitHub API.</p>
+      </td>
+      <td class=code>
+        <div class='highlight'><pre><span class="nx">GitHub</span><span class="p">.</span><span class="nx">token</span> <span class="o">=</span> <span class="kc">null</span></pre></div>
+      </td>
+    </tr>
+    <tr id='section-GitHub.authenticate(username,_password,_options)'>
+      <td class=docs>
+        <div class="pilwrap">
+          <a class="pilcrow" href="#section-GitHub.authenticate(username,_password,_options)">&#182;</a>
+        </div>
+        <h2>GitHub.authenticate(username, password, options)</h2>
+
+<p>Authenticate with GitHub via username and password. This 
+method will automatically set <code>GitHub.token</code>, which allows
+you to make authenticated calls to the GitHub API.</p>
+
+<p>Note that this will authenticate the user with a generic
+&ldquo;GitHub API&rdquo; application. In order to have an app-specific
+token you need to use the redirect flow. Available options:</p>
+
+<ul>
+<li><strong>success:</strong> a callback function that takes arguments
+<code>data</code>, <code>textStatus</code>, and <code>jqXHR</code> (standard jQuery
+success callback)</li>
+<li><strong>error:</strong> a callback function that takes arguments
+<code>jqXHR</code>, <code>textStatus</code>, and <code>errorThrown</code></li>
+<li><strong>scope:</strong> provide comma-separated scopes. For example,
+<code>repo,user</code></li>
+</ul>
+      </td>
+      <td class=code>
+        <div class='highlight'><pre><span class="nx">GitHub</span><span class="p">.</span><span class="nx">authenticate</span> <span class="o">=</span> <span class="p">(</span><span class="nx">username</span><span class="p">,</span> <span class="nx">password</span><span class="p">,</span> <span class="nx">options</span><span class="p">)</span><span class="o">-&gt;</span>
+  <span class="nx">postData</span> <span class="o">=</span> <span class="p">{}</span>
+  <span class="nx">postData</span><span class="p">.</span><span class="nx">scope</span> <span class="o">=</span> <span class="nx">options</span><span class="p">.</span><span class="nx">scope</span> <span class="k">if</span> <span class="nx">options</span><span class="p">.</span><span class="nx">scope</span><span class="o">?</span>
+
+  <span class="nx">$</span><span class="p">.</span><span class="nx">ajax</span>
+    <span class="nv">url: </span><span class="s2">&quot;https://api.github.com/authorizations&quot;</span>
+    <span class="nv">contentType: </span><span class="s1">&#39;application/json&#39;</span>
+    <span class="nv">dataType: </span><span class="s1">&#39;json&#39;</span>
+    <span class="nv">type: </span><span class="s1">&#39;POST&#39;</span>
+    <span class="nv">data: </span><span class="nx">JSON</span><span class="p">.</span><span class="nx">stringify</span><span class="p">(</span><span class="nx">postData</span><span class="p">)</span>
+    <span class="nv">headers:</span>
+      <span class="s1">&#39;Authorization&#39;</span><span class="o">:</span> <span class="s2">&quot;Basic #{btoa(&quot;</span><span class="c1">#{username}:#{password}&quot;)}&quot;</span>
+    <span class="nv">success: </span><span class="p">(</span><span class="nx">d</span><span class="p">,</span><span class="nx">s</span><span class="p">,</span><span class="nx">x</span><span class="p">)</span><span class="o">-&gt;</span>
+      <span class="nx">GitHub</span><span class="p">.</span><span class="nx">token</span> <span class="o">=</span> <span class="nx">d</span><span class="p">.</span><span class="nx">token</span>
+      <span class="nx">options</span><span class="p">.</span><span class="nx">success</span><span class="p">(</span><span class="nx">d</span><span class="p">,</span><span class="nx">s</span><span class="p">,</span><span class="nx">x</span><span class="p">)</span> <span class="k">if</span> <span class="nx">options</span><span class="p">.</span><span class="nx">success</span><span class="o">?</span>
+    <span class="nv">error: </span><span class="nx">options</span><span class="p">.</span><span class="nx">error</span></pre></div>
+      </td>
+    </tr>
+    <tr id='section-GitHub.sync'>
+      <td class=docs>
+        <div class="pilwrap">
+          <a class="pilcrow" href="#section-GitHub.sync">&#182;</a>
+        </div>
+        <h2>GitHub.sync</h2>
+
+<p>The GitHub sync method is simply a customized version of the
+default Backbone sync mechanism with two improved properties:</p>
+
+<ol>
+<li>It automatically sets an Accept header compatible with the
+GitHub v3 API.</li>
+<li>It sets the OAuth 2.0 Authorization header if <code>GitHub.token</code>
+exists.</li>
+</ol>
+      </td>
+      <td class=code>
+        <div class='highlight'><pre><span class="nx">GitHub</span><span class="p">.</span><span class="nx">sync</span> <span class="o">=</span> <span class="p">(</span><span class="nx">method</span><span class="p">,</span> <span class="nx">model</span><span class="p">,</span> <span class="nx">options</span><span class="p">)</span><span class="o">-&gt;</span>
+  <span class="nx">extendedOptions</span> <span class="o">=</span> <span class="nx">_</span><span class="p">.</span><span class="nx">extend</span> <span class="p">{</span>
+    <span class="nv">beforeSend: </span><span class="p">(</span><span class="nx">xhr</span><span class="p">)</span><span class="o">-&gt;</span>
+      <span class="nx">xhr</span><span class="p">.</span><span class="nx">setRequestHeader</span> <span class="s1">&#39;Accept&#39;</span><span class="p">,</span> <span class="s1">&#39;application/vnd.github+json&#39;</span>
+      <span class="nx">xhr</span><span class="p">.</span><span class="nx">setRequestHeader</span> <span class="s1">&#39;Authorization&#39;</span><span class="p">,</span> <span class="s2">&quot;bearer #{GitHub.token}&quot;</span> <span class="k">if</span> <span class="nx">GitHub</span><span class="p">.</span><span class="nx">token</span>
+  <span class="p">},</span> <span class="nx">options</span>
+  <span class="nx">Backbone</span><span class="p">.</span><span class="nx">sync</span><span class="p">(</span><span class="nx">method</span><span class="p">,</span> <span class="nx">model</span><span class="p">,</span> <span class="nx">extendedOptions</span><span class="p">)</span>
+
+<span class="nx">GitHub</span><span class="p">.</span><span class="nx">Model</span> <span class="o">=</span> <span class="nx">Backbone</span><span class="p">.</span><span class="nx">Model</span><span class="p">.</span><span class="nx">extend</span>
+  <span class="nv">sync: </span><span class="nx">GitHub</span><span class="p">.</span><span class="nx">sync</span>
+
+<span class="nx">GitHub</span><span class="p">.</span><span class="nx">Collection</span> <span class="o">=</span> <span class="nx">Backbone</span><span class="p">.</span><span class="nx">Collection</span><span class="p">.</span><span class="nx">extend</span>
+  <span class="nv">sync: </span><span class="nx">GitHub</span><span class="p">.</span><span class="nx">sync</span>
+
+<span class="nx">GitHub</span><span class="p">.</span><span class="nx">Relations</span> <span class="o">=</span>
+  <span class="nv">ownedRepos: </span><span class="p">(</span><span class="nx">options</span><span class="p">)</span><span class="o">-&gt;</span>
+    <span class="nx">repos</span> <span class="o">=</span> <span class="k">new</span> <span class="nx">GitHub</span><span class="p">.</span><span class="nx">Repos</span>
+    <span class="nx">repos</span><span class="p">.</span><span class="nx">url</span> <span class="o">=</span> <span class="k">if</span> <span class="k">typeof</span> <span class="err">@</span><span class="nx">url</span> <span class="o">==</span> <span class="s2">&quot;function&quot;</span> <span class="k">then</span> <span class="err">@</span><span class="nx">url</span><span class="p">()</span> <span class="k">else</span> <span class="err">@</span><span class="nx">url</span>
+    <span class="nx">repos</span><span class="p">.</span><span class="nx">url</span> <span class="o">+=</span> <span class="s2">&quot;/repos&quot;</span>
+    <span class="nx">repos</span><span class="p">.</span><span class="nx">fetch</span><span class="p">(</span><span class="nx">options</span><span class="p">)</span>
+    <span class="nx">repos</span>
+  <span class="nv">ownedOrgs: </span><span class="p">(</span><span class="nx">options</span><span class="p">)</span><span class="o">-&gt;</span>
+    <span class="nx">orgs</span> <span class="o">=</span> <span class="k">new</span> <span class="nx">GitHub</span><span class="p">.</span><span class="nx">Organizations</span>
+    <span class="nx">orgs</span><span class="p">.</span><span class="nx">url</span> <span class="o">=</span> <span class="k">if</span> <span class="k">typeof</span> <span class="err">@</span><span class="nx">url</span> <span class="o">==</span> <span class="s2">&quot;function&quot;</span> <span class="k">then</span> <span class="err">@</span><span class="nx">url</span><span class="p">()</span> <span class="k">else</span> <span class="err">@</span><span class="nx">url</span>
+    <span class="nx">orgs</span><span class="p">.</span><span class="nx">url</span> <span class="o">+=</span> <span class="s2">&quot;/orgs&quot;</span>
+    <span class="nx">orgs</span><span class="p">.</span><span class="nx">fetch</span><span class="p">(</span><span class="nx">options</span><span class="p">)</span>
+    <span class="nx">orgs</span></pre></div>
+      </td>
+    </tr>
+    <tr id='section-GitHub.User'>
+      <td class=docs>
+        <div class="pilwrap">
+          <a class="pilcrow" href="#section-GitHub.User">&#182;</a>
+        </div>
+        <h2>GitHub.User</h2>
+
+<p>The GitHub User model. For information about specific attributes
+that are available on this model, see GitHub&rsquo;s <a href="http://developer.github.com/v3/users/">Users API</a>
+documentation.</p>
+      </td>
+      <td class=code>
+        <div class='highlight'><pre><span class="nx">GitHub</span><span class="p">.</span><span class="nx">User</span> <span class="o">=</span> <span class="nx">GitHub</span><span class="p">.</span><span class="nx">Model</span><span class="p">.</span><span class="nx">extend</span><span class="p">(</span>
+  <span class="nv">urlRoot: </span><span class="s1">&#39;https://api.github.com/users/&#39;</span></pre></div>
+      </td>
+    </tr>
+    <tr id='section-user.repos(options)'>
+      <td class=docs>
+        <div class="pilwrap">
+          <a class="pilcrow" href="#section-user.repos(options)">&#182;</a>
+        </div>
+        <h3>user.repos(options)</h3>
+
+<p>Fetch associated repositories for this user. Takes
+a <code>success</code> and <code>error</code> callback as potential options.
+Returns a <code>GitHub.Repos</code> collection.</p>
+      </td>
+      <td class=code>
+        <div class='highlight'><pre>  <span class="nv">repos: </span><span class="nx">GitHub</span><span class="p">.</span><span class="nx">Relations</span><span class="p">.</span><span class="nx">ownedRepos</span></pre></div>
+      </td>
+    </tr>
+    <tr id='section-user.organizations(options)'>
+      <td class=docs>
+        <div class="pilwrap">
+          <a class="pilcrow" href="#section-user.organizations(options)">&#182;</a>
+        </div>
+        <h3>user.organizations(options)</h3>
+
+<p>Fetch associated organizations for this user. Takes
+a <code>success</code> and <code>error</code> callback as potential options.</p>
+      </td>
+      <td class=code>
+        <div class='highlight'><pre>  <span class="nv">organizations: </span><span class="nx">GitHub</span><span class="p">.</span><span class="nx">Relations</span><span class="p">.</span><span class="nx">ownedOrgs</span>
+<span class="p">,</span></pre></div>
+      </td>
+    </tr>
+    <tr id='section-GitHub.User.fetch(name,_options)'>
+      <td class=docs>
+        <div class="pilwrap">
+          <a class="pilcrow" href="#section-GitHub.User.fetch(name,_options)">&#182;</a>
+        </div>
+        <h3>GitHub.User.fetch(name, options)</h3>
+
+<p>Retrieve a user by username. Takes <code>success</code> and
+<code>error</code> callbacks.</p>
+
+<pre><code>GitHub.User.fetch(&lsquo;mbleigh&rsquo;, {success: function(u){
+  console.log(u.toJSON());
+}});
+</code></pre>
+      </td>
+      <td class=code>
+        <div class='highlight'><pre>  <span class="nv">fetch: </span><span class="p">(</span><span class="nx">name</span><span class="p">,</span> <span class="nx">options</span><span class="p">)</span><span class="o">-&gt;</span>
+    <span class="nx">user</span> <span class="o">=</span> <span class="k">new</span> <span class="nx">GitHub</span><span class="p">.</span><span class="nx">User</span><span class="p">(</span><span class="nv">id: </span><span class="nx">name</span><span class="p">)</span>
+    <span class="nx">user</span><span class="p">.</span><span class="nx">fetch</span><span class="p">(</span><span class="nx">options</span><span class="p">)</span>
+    <span class="nx">user</span>
+<span class="p">)</span></pre></div>
+      </td>
+    </tr>
+    <tr id='section-GitHub.Organization'>
+      <td class=docs>
+        <div class="pilwrap">
+          <a class="pilcrow" href="#section-GitHub.Organization">&#182;</a>
+        </div>
+        <h2>GitHub.Organization</h2>
+
+<p>Represents a GitHub organization. See the <a href="http://developer.github.com/v3/orgs/">Organization
+API</a> docs on GitHub
+for additional information.</p>
+      </td>
+      <td class=code>
+        <div class='highlight'><pre><span class="nx">GitHub</span><span class="p">.</span><span class="nx">Organization</span> <span class="o">=</span> <span class="nx">GitHub</span><span class="p">.</span><span class="nx">Model</span><span class="p">.</span><span class="nx">extend</span><span class="p">(</span>
+  <span class="nv">urlRoot: </span><span class="s1">&#39;https://api.github.com/orgs/&#39;</span></pre></div>
+      </td>
+    </tr>
+    <tr id='section-org.repos(options)'>
+      <td class=docs>
+        <div class="pilwrap">
+          <a class="pilcrow" href="#section-org.repos(options)">&#182;</a>
+        </div>
+        <h3>org.repos(options)</h3>
+
+<p>Fetch the repositories for the instantiated organization.
+Takes <code>success</code> and <code>error</code> callbacks. Returns a
+<code>GitHub.Repos</code> collection.</p>
+      </td>
+      <td class=code>
+        <div class='highlight'><pre>  <span class="nv">repos: </span><span class="nx">GitHub</span><span class="p">.</span><span class="nx">Relations</span><span class="p">.</span><span class="nx">ownedRepos</span>
+<span class="p">,</span></pre></div>
+      </td>
+    </tr>
+    <tr id='section-GitHub.Organization.fetch(name,_options)'>
+      <td class=docs>
+        <div class="pilwrap">
+          <a class="pilcrow" href="#section-GitHub.Organization.fetch(name,_options)">&#182;</a>
+        </div>
+        <h3>GitHub.Organization.fetch(name, options)</h3>
+
+<p>Fetch an organization by name. Accepts <code>success</code>
+and <code>error</code> callbacks.</p>
+
+<pre><code>GitHub.Organization.fetch(&lsquo;opperator&rsquo;, {success: function(o){
+  console.log(o.toJSON());
+}});
+</code></pre>
+      </td>
+      <td class=code>
+        <div class='highlight'><pre>  <span class="nv">fetch: </span><span class="p">(</span><span class="nx">name</span><span class="p">,</span> <span class="nx">options</span><span class="p">)</span><span class="o">-&gt;</span>
+    <span class="nx">org</span> <span class="o">=</span> <span class="k">new</span> <span class="nx">GitHub</span><span class="p">.</span><span class="nx">Organization</span><span class="p">(</span><span class="nv">id: </span><span class="nx">name</span><span class="p">)</span>
+    <span class="nx">org</span><span class="p">.</span><span class="nx">fetch</span><span class="p">(</span><span class="nx">options</span><span class="p">)</span>
+    <span class="nx">org</span>
+<span class="p">)</span></pre></div>
+      </td>
+    </tr>
+    <tr id='section-GitHub.Organizations'>
+      <td class=docs>
+        <div class="pilwrap">
+          <a class="pilcrow" href="#section-GitHub.Organizations">&#182;</a>
+        </div>
+        <h2>GitHub.Organizations</h2>
+
+<p>Collection of multiple organizations. By default will
+be associated to the current user&rsquo;s organizations (you
+must set an <code>GitHub.token</code> for that to work.)</p>
+      </td>
+      <td class=code>
+        <div class='highlight'><pre><span class="nx">GitHub</span><span class="p">.</span><span class="nx">Organizations</span> <span class="o">=</span> <span class="nx">GitHub</span><span class="p">.</span><span class="nx">Collection</span><span class="p">.</span><span class="nx">extend</span>
+  <span class="nv">url: </span><span class="s1">&#39;https://api.github.com/user/orgs&#39;</span>
+  <span class="nv">model: </span><span class="nx">GitHub</span><span class="p">.</span><span class="nx">Organization</span></pre></div>
+      </td>
+    </tr>
+    <tr id='section-GitHub.Repo'>
+      <td class=docs>
+        <div class="pilwrap">
+          <a class="pilcrow" href="#section-GitHub.Repo">&#182;</a>
+        </div>
+        <h2>GitHub.Repo</h2>
+
+<p>Repository model. For more information about attributes
+etc, see the <a href="http://developer.github.com/v3/repos/">GitHub Repo</a>
+API docs.</p>
+      </td>
+      <td class=code>
+        <div class='highlight'><pre><span class="nx">GitHub</span><span class="p">.</span><span class="nx">Repo</span> <span class="o">=</span> <span class="nx">GitHub</span><span class="p">.</span><span class="nx">Model</span><span class="p">.</span><span class="nx">extend</span><span class="p">(</span>
+  <span class="nv">url: </span><span class="p">()</span><span class="o">-&gt;</span>
+    <span class="err">@</span><span class="nx">get</span><span class="p">(</span><span class="s1">&#39;url&#39;</span><span class="p">)</span> <span class="o">||</span> <span class="s2">&quot;https://api.github.com/repos/#{@get(&#39;path&#39;)}&quot;</span>
+<span class="p">,</span></pre></div>
+      </td>
+    </tr>
+    <tr id='section-GitHub.Repo.fetch(owner,_name,_options)'>
+      <td class=docs>
+        <div class="pilwrap">
+          <a class="pilcrow" href="#section-GitHub.Repo.fetch(owner,_name,_options)">&#182;</a>
+        </div>
+        <h3>GitHub.Repo.fetch(owner, name, options)</h3>
+
+<p>Retrieve a repository knowing its owner and name. Takes
+<code>success</code> and <code>error</code> callbacks in options.</p>
+
+<pre><code>GitHub.Repo.fetch(&lsquo;opperator&rsquo;, &lsquo;backbone-github&rsquo;, {success: function&reg;{
+  console.log(r.toJSON());
+}});
+</code></pre>
+      </td>
+      <td class=code>
+        <div class='highlight'><pre>  <span class="nv">fetch: </span><span class="p">(</span><span class="nx">owner</span><span class="p">,</span> <span class="nx">name</span><span class="p">,</span> <span class="nx">options</span><span class="p">)</span><span class="o">-&gt;</span>
+    <span class="nx">repo</span> <span class="o">=</span> <span class="k">new</span> <span class="nx">GitHub</span><span class="p">.</span><span class="nx">Repo</span><span class="p">(</span><span class="nv">path: </span><span class="s2">&quot;#{owner}/#{name}&quot;</span><span class="p">)</span>
+    <span class="nx">repo</span><span class="p">.</span><span class="nx">fetch</span><span class="p">(</span><span class="nx">options</span><span class="p">)</span>
+    <span class="nx">repo</span>
+<span class="p">)</span></pre></div>
+      </td>
+    </tr>
+    <tr id='section-GitHub.Repos'>
+      <td class=docs>
+        <div class="pilwrap">
+          <a class="pilcrow" href="#section-GitHub.Repos">&#182;</a>
+        </div>
+        <h2>GitHub.Repos</h2>
+
+<p>Collection of Repo models. Defaults to the current user&rsquo;s
+repositories. Must have set <code>GitHub.token</code> for current
+user repo fetch to be successful.</p>
+      </td>
+      <td class=code>
+        <div class='highlight'><pre><span class="nx">GitHub</span><span class="p">.</span><span class="nx">Repos</span> <span class="o">=</span> <span class="nx">GitHub</span><span class="p">.</span><span class="nx">Collection</span><span class="p">.</span><span class="nx">extend</span>
+  <span class="nv">url: </span><span class="s1">&#39;https://api.github.com/user/repos&#39;</span>
+  <span class="nv">model: </span><span class="nx">GitHub</span><span class="p">.</span><span class="nx">Repo</span></pre></div>
+      </td>
+    </tr>
+    <tr id='section-GitHub.currentUser'>
+      <td class=docs>
+        <div class="pilwrap">
+          <a class="pilcrow" href="#section-GitHub.currentUser">&#182;</a>
+        </div>
+        <h2>GitHub.currentUser</h2>
+
+<p>A <code>GitHub.User</code> corresponding to the authenticated user.
+Note that you must set <code>GitHub.token</code> to a valid OAuth 2.0
+token to be able to utilize the current user.</p>
+
+<p>The <code>currentUser</code> is not fetched by default, you must run
+<code>GitHub.currentUser.fetch()</code> before it will be populated
+with data.</p>
+
+      </td>
+      <td class=code>
+        <div class='highlight'><pre><span class="nx">GitHub</span><span class="p">.</span><span class="nx">currentUser</span> <span class="o">=</span> <span class="k">new</span> <span class="nx">GitHub</span><span class="p">.</span><span class="nx">User</span><span class="p">()</span>
+<span class="nx">GitHub</span><span class="p">.</span><span class="nx">currentUser</span><span class="p">.</span><span class="nx">url</span> <span class="o">=</span> <span class="s2">&quot;https://api.github.com/user&quot;</span>
+<span class="nx">GitHub</span><span class="p">.</span><span class="nx">currentUser</span><span class="p">.</span><span class="nx">urlRoot</span> <span class="o">=</span> <span class="kc">null</span></pre></div>
+      </td>
+    </tr>
+  </table>
+</div>
+</body>
